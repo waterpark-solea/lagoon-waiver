@@ -97,7 +97,6 @@ select {
     max-width: 100%;
 }
 
-
 /* GRID FOR NAMES */
 .name-grid {
     display: flex;
@@ -108,16 +107,15 @@ select {
 .name-field {
     flex: 1;
 }
+
 .participant-row label {
     display: block;
-    margin-bottom: 12px;
+    margin-bottom: 8px; /* reduced from 12px */
 }
+
 .participant-row {
-    margin-bottom: 20px;
+    margin-bottom: 15px; /* reduced from 20px */
 }
-
-
-
 
 /* SIGNATURE */
 .signature-container {
@@ -150,7 +148,6 @@ button:hover {
 .clear-btn {
     background-color: #dc3545;
     margin-top: 10px;
-
 }
 
 /* Minor Highlight */
@@ -178,6 +175,27 @@ button:hover {
     margin-top: 5px;
 }
 
+/* ===============================
+   GUARDIAN SECTION FIX
+=============================== */
+
+#guardian-section {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+#guardian-section h3 {
+    margin-bottom: 5px;
+}
+
+#guardian-section p {
+    margin-top: 5px;
+    margin-bottom: 8px;
+}
+
+#guardian-section .name-field {
+    max-width: 300px;  /* keeps guardian same width as one participant column */
+}
 
 /* ---------- MOBILE & TABLET OPTIMIZATION ---------- */
 @media (max-width: 768px) {
@@ -216,7 +234,6 @@ button:hover {
         line-height: 1.6;
     }
 
-    /* STACK NAME FIELDS */
     .name-grid {
         flex-direction: column;
         gap: 12px;
@@ -233,21 +250,21 @@ button:hover {
         min-height: 50px;
     }
 
-    #guardian-input {
-        width: 100% !important;
+    #guardian-section .name-field {
+        max-width: 100%;
     }
 
     canvas {
         height: 170px;
     }
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="container">
+<div id="mainContent">
 
 <h1>LAGOON WATERPARKS</h1>
 <h2>SOLEA MACTAN CEBU RESORT</h2>
@@ -296,7 +313,7 @@ I understand that this document is correct and that I thoroughly and fully under
 
 </div>
 
-<form id="waiverForm" action="https://script.google.com/macros/s/AKfycbxZAYP4tl2QUD_Wt_jmou7Bs13wpwCLDY5STdZDxPKTMXNAux8rgZ7hZcEF7RlZHHc/exec" method="POST">
+<form id="waiverForm">
 
 <label>Guest Type:</label><br>
 <select name="guest_type" id="guest_type" required>
@@ -307,7 +324,7 @@ I understand that this document is correct and that I thoroughly and fully under
 
 <br><br>
 
-<div id="room-container">
+<div id="room-container" style="display:none;">
     <label>Room Number (Required for In-House Guests Only):</label><br>
     <input type="text"
        name="room"
@@ -361,23 +378,26 @@ I understand that this document is correct and that I thoroughly and fully under
 
 <!-- Guardian Section -->
 
-<div id="guardian-section">
+<div id="guardian-section" style="display:none; margin-top:25px;">
 
-<h3>Parent/Guardian of Child (If Minor)</h3>
+    <h3>Parent/Guardian of Child (If Minor)</h3>
+    <p style="font-size:13px; margin-top:-10px;">
+        (Required only if any participant is under 18 years old)
+    </p>
 
-<p style="font-size:13px; margin-top:-10px;">
-(Required only if any participant is under 18 years old)
-</p>
+    <div class="participant-row">
+        <div class="name-grid">
 
-<div class="participant-row">
-    <label>Full Name</label><br>
-    <input type="text" name="guardian" id="guardian-input" 
-           style="width:300px; padding:8px; border-radius:5px; border:1px solid #ccc;">
+            <div class="name-field" style="max-width: 300px;">
+                <input type="text" name="guardian" id="guardian-input">
+                <small>Full Name</small>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
-</div>
-
-<br><br>
 
 <p><strong>DATA PRIVACY CONSENT</strong></p>
 
@@ -429,11 +449,9 @@ I have carefully read, fully understood, and voluntarily agree to the terms and 
 
 </form>
 
-<button type="submit">Submit Waiver</button>
+</div> <!-- end mainContent -->
 
-</form>
-
-<!-- THANK YOU MESSAGE (INSERT HERE) -->
+<!-- THANK YOU MESSAGE -->
 <div id="thankYouMessage" style="display:none; text-align:center; padding:60px;">
     <h1 style="color:#2e7d32; font-size:28px; margin-bottom:20px;">
         Registration Successful! 🌊
@@ -443,41 +461,33 @@ I have carefully read, fully understood, and voluntarily agree to the terms and 
         with a safe and enjoyable experience at Lagoon Waterpark.
     </p>
 </div>
-</div>
 
 <script>
-const canvas = document.getElementById('signature-pad');
-const signaturePad = new SignaturePad(canvas);
+document.addEventListener("DOMContentLoaded", function() {
 
-/* ===========================
-   SIGNATURE RESIZE
-=========================== */
+/* =============================
+   SIGNATURE PAD
+============================= */
+
+const canvas = document.getElementById("signature-pad");
+const signaturePad = new SignaturePad(canvas);
 
 function resizeCanvas() {
     const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    const data = signaturePad.toData();
-
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = 200 * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
-
-    signaturePad.clear();
-
-    if (data.length) {
-        signaturePad.fromData(data);
-    }
 }
-
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-function clearSignature() {
+window.clearSignature = function() {
     signaturePad.clear();
-}
+};
 
-/* ===========================
-   ROOM SHOW / HIDE LOGIC
-=========================== */
+/* =============================
+   ROOM TOGGLE
+============================= */
 
 const guestType = document.getElementById("guest_type");
 const roomContainer = document.getElementById("room-container");
@@ -495,56 +505,45 @@ function toggleRoomField() {
 }
 
 guestType.addEventListener("change", toggleRoomField);
-toggleRoomField();
+toggleRoomField(); // run immediately
 
-/* ===========================
-   SMART MINOR DETECTION
-=========================== */
+/* =============================
+   MINOR DETECTION
+============================= */
 
 const guardianSection = document.getElementById("guardian-section");
 const guardianInput = document.getElementById("guardian-input");
 
-guardianSection.style.display = "none";
-
 let participantCount = 1;
-
-/* Attach age listener */
-function attachAgeListener(index) {
-    const ageInput = document.querySelector(`[name="p${index}_age"]`);
-    if (ageInput) {
-        ageInput.addEventListener("input", checkMinors);
-    }
-}
-
-attachAgeListener(1);
 
 function checkMinors() {
 
     let hasMinor = false;
 
     for (let i = 1; i <= participantCount; i++) {
-
         const ageInput = document.querySelector(`[name="p${i}_age"]`);
         if (!ageInput) continue;
 
-        const label = document.getElementById(`p${i}_label`);
-        const row = ageInput.closest(".participant-row");
-
         const age = parseInt(ageInput.value);
+        const row = ageInput.closest(".participant-row");
+        const label = document.getElementById(`p${i}_label`);
 
-        row.classList.remove("minor-highlight");
-        label.innerHTML = "";
+        if (row) row.classList.remove("minor-highlight");
+        if (label) label.innerHTML = "";
 
         if (!isNaN(age)) {
-
             if (age < 18) {
                 hasMinor = true;
-                row.classList.add("minor-highlight");
-                label.innerHTML = "Minor";
-                label.style.color = "red";
+                if (row) row.classList.add("minor-highlight");
+                if (label) {
+                    label.innerHTML = "Minor";
+                    label.style.color = "red";
+                }
             } else {
-                label.innerHTML = "Adult";
-                label.style.color = "green";
+                if (label) {
+                    label.innerHTML = "Adult";
+                    label.style.color = "green";
+                }
             }
         }
     }
@@ -559,93 +558,92 @@ function checkMinors() {
     }
 }
 
-/* ===========================
-   ADD PARTICIPANT SYSTEM
-=========================== */
+/* detect ALL age inputs */
+document.addEventListener("input", function(e) {
+    if (e.target.name && e.target.name.includes("_age")) {
+        checkMinors();
+    }
+});
 
-document.getElementById("addParticipantBtn").addEventListener("click", function () {
+/* =============================
+   ADD PARTICIPANT
+============================= */
+
+document.getElementById("addParticipantBtn")
+.addEventListener("click", function() {
 
     participantCount++;
 
     const container = document.getElementById("additional-participants");
 
-    const participantDiv = document.createElement("div");
-    participantDiv.className = "participant-row";
+    const div = document.createElement("div");
+    div.className = "participant-row";
 
-    participantDiv.innerHTML = `
+    div.innerHTML = `
         <label>Participant ${participantCount}</label>
         <div class="name-grid">
-
             <div class="name-field">
                 <input type="text" name="p${participantCount}_first">
                 <small>First Name</small>
             </div>
-
             <div class="name-field">
                 <input type="text" name="p${participantCount}_last">
                 <small>Last Name</small>
             </div>
-
             <div class="name-field">
                 <input type="number"
                        name="p${participantCount}_age"
                        min="0"
-                       max="80"
-                       oninput="if (this.value.length > 2) this.value = this.value.slice(0,2)">
+                       max="80">
                 <small>Age</small>
                 <div class="age-label" id="p${participantCount}_label"></div>
             </div>
-
         </div>
     `;
 
-    container.appendChild(participantDiv);
-
-    attachAgeListener(participantCount);
+    container.appendChild(div);
 });
 
-/* ===========================
+/* =============================
    FORM SUBMIT
-=========================== */
+============================= */
 
-document.getElementById("waiverForm").addEventListener("submit", function(e) {
+document.getElementById("waiverForm")
+.addEventListener("submit", function(e) {
 
-    // Validate dynamic participants
-    for (let i = 1; i <= participantCount; i++) {
-
-    const firstInput = document.querySelector(`[name="p${i}_first"]`);
-    const lastInput  = document.querySelector(`[name="p${i}_last"]`);
-    const ageInput   = document.querySelector(`[name="p${i}_age"]`);
-
-    // Skip if participant row does not exist
-    if (!firstInput || !lastInput || !ageInput) {
-        continue;
-    }
-
-    const first = firstInput.value.trim();
-    const last  = lastInput.value.trim();
-    const age   = ageInput.value.trim();
-
-    // If ANY field is filled, require ALL fields
-    if ((first !== "" || last !== "" || age !== "") &&
-        (first === "" || last === "" || age === "")) {
-
-        alert(`Please complete full details for Participant ${i}.`);
-        e.preventDefault();
-        return;
-    }
-}
+    e.preventDefault();
 
     if (signaturePad.isEmpty()) {
         alert("Please provide your digital signature.");
-        e.preventDefault();
         return;
     }
 
     document.getElementById("signature-data").value = signaturePad.toDataURL();
+
+    const formData = new FormData(this);
+
+    fetch("YOUR_WEB_APP_URL_HERE", {
+        method: "POST",
+        body: formData
+    })
+    .then(() => {
+
+        document.getElementById("mainContent").style.display = "none";
+        document.getElementById("thankYouMessage").style.display = "block";
+
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
+
+    })
+    .catch(() => {
+        alert("Submission failed. Please try again.");
+    });
+
+});
+
 });
 </script>
 
 </body>
 </html>
-
