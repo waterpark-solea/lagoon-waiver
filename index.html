@@ -620,11 +620,39 @@ document.getElementById("waiverForm")
 
     e.preventDefault();
 
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // 1️⃣ Check signature
     if (signaturePad.isEmpty()) {
         alert("Please provide your digital signature.");
         return;
     }
 
+    // 2️⃣ Smart validation for added participants
+    for (let i = 2; i <= participantCount; i++) {
+
+        const first = document.querySelector(`[name="p${i}_first"]`);
+        const last = document.querySelector(`[name="p${i}_last"]`);
+        const age = document.querySelector(`[name="p${i}_age"]`);
+
+        if (!first) continue;
+
+        // If user typed anything in this row
+        if (first.value || last.value || age.value) {
+
+            // But not all fields completed
+            if (!first.value || !last.value || !age.value) {
+                alert("Please complete all fields for Participant " + i);
+                return;
+            }
+        }
+    }
+
+    // 3️⃣ Disable button to prevent double click
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting...";
+
+    // 4️⃣ Save signature
     document.getElementById("signature-data").value = signaturePad.toDataURL();
 
     const formData = new FormData(this);
@@ -633,15 +661,26 @@ document.getElementById("waiverForm")
         method: "POST",
         body: formData
     })
-    .then(() => {
+    .then(response => response.json())
+    .then(data => {
 
-        document.getElementById("mainContent").style.display = "none";
-        document.getElementById("thankYouMessage").style.display = "block";
+        if (data.status === "success") {
 
-        
+            document.getElementById("mainContent").style.display = "none";
+            document.getElementById("thankYouMessage").style.display = "block";
+
+        } else {
+            alert("Submission failed: " + data.message);
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Submit Waiver";
+        }
     })
     .catch(() => {
-    alert("Submission failed. Please try again.");
+        alert("Submission failed. Please try again.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit Waiver";
+    });
+
 });
 
 /* =============================
