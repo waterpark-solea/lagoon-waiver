@@ -179,22 +179,51 @@ button:hover {
 }
 
 
-/* ---------- MOBILE ADJUSTMENTS ---------- */
+/* ---------- MOBILE & TABLET OPTIMIZATION ---------- */
 @media (max-width: 768px) {
 
+    body {
+        padding: 10px;
+    }
+
     .container {
-        padding: 18px;
+        padding: 15px;
+        border-radius: 8px;
     }
 
     h1 { font-size: 18px; }
-    h2 { font-size: 15px; }
+    h2 { font-size: 14px; }
 
     .waiver-text {
         font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* STACK NAME FIELDS VERTICALLY */
+    .name-grid {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        font-size: 16px; /* prevents iPhone zoom */
+        padding: 12px;
+    }
+
+    button {
+        font-size: 18px;
+        padding: 16px;
+        min-height: 50px;
     }
 
     canvas {
         height: 160px;
+    }
+
+    #guardian-input {
+        width: 100% !important;
     }
 }
 
@@ -592,4 +621,3 @@ document.getElementById("waiverForm").addEventListener("submit", function(e) {
 
 </body>
 </html>
-
