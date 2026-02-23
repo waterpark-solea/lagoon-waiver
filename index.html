@@ -638,18 +638,43 @@ document.getElementById("waiverForm")
         document.getElementById("mainContent").style.display = "none";
         document.getElementById("thankYouMessage").style.display = "block";
 
-        setTimeout(() => {
-            location.reload();
-        }, 5000);
-
+        
     })
     .catch(() => {
-        alert("Submission failed. Please try again.");
-    });
-
+    alert("Submission failed. Please try again.");
 });
 
+/* =============================
+   REGISTER ANOTHER GUEST BUTTON
+============================= */
+
+document.getElementById("newRegistrationBtn")
+.addEventListener("click", function() {
+
+    // Hide thank you screen
+    document.getElementById("thankYouMessage").style.display = "none";
+
+    // Show main form again
+    document.getElementById("mainContent").style.display = "block";
+
+    // Reset form
+    document.getElementById("waiverForm").reset();
+
+    // Clear signature
+    signaturePad.clear();
+
+    // Reset dynamic participants
+    document.getElementById("additional-participants").innerHTML = "";
+    participantCount = 1;
+
+    // Hide guardian
+    guardianSection.style.display = "none";
+
+    // Reset room field
+    toggleRoomField();
 });
+
+}); // ← THIS is the end of DOMContentLoaded
 </script>
 
 </body>
