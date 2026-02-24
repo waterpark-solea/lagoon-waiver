@@ -526,10 +526,9 @@ setTimeout(toggleRoomField, 100);
 
 
 /* =============================
-   MINOR DETECTION FIX
+   MINOR DETECTION (STABLE VERSION)
 ============================= */
 
-let participantCount = 1;
 const guardianSection = document.getElementById("guardian-section");
 const guardianInput = document.getElementById("guardian-input");
 
@@ -537,36 +536,59 @@ function checkMinors() {
 
     let hasMinor = false;
 
-    for (let i = 1; i <= participantCount; i++) {
+    // Get ALL age inputs dynamically (no reliance on participantCount)
+    const ageInputs = document.querySelectorAll('[name$="_age"]');
 
-        const ageInput = document.querySelector(`[name="p${i}_age"]`);
-        if (!ageInput) continue;
+    ageInputs.forEach(ageInput => {
 
-        const age = parseInt(ageInput.value);
-        const label = document.getElementById(`p${i}_label`);
+        const ageValue = ageInput.value.trim();
+        const age = parseInt(ageValue);
         const row = ageInput.closest(".participant-row");
 
-        if (label) label.innerHTML = "";
-        if (row) row.classList.remove("minor-highlight");
+        // Get participant number from name (example: p1_age → 1)
+        const match = ageInput.name.match(/p(\d+)_age/);
+        const label = match
+            ? document.getElementById(`p${match[1]}_label`)
+            : null;
 
+        // Reset UI
+        if (label) {
+            label.innerHTML = "";
+        }
+        if (row) {
+            row.classList.remove("minor-highlight");
+        }
+
+        // If field is empty, skip
+        if (!ageValue) return;
+
+        // If valid number
         if (!isNaN(age)) {
 
             if (age < 18) {
                 hasMinor = true;
+
                 if (label) {
                     label.innerHTML = "Minor";
                     label.style.color = "red";
                 }
-                if (row) row.classList.add("minor-highlight");
+
+                if (row) {
+                    row.classList.add("minor-highlight");
+                }
+
             } else {
+
                 if (label) {
                     label.innerHTML = "Adult";
                     label.style.color = "green";
                 }
             }
         }
-    }
 
+    });
+
+    // Show or hide guardian section
     if (hasMinor) {
         guardianSection.style.display = "block";
         guardianInput.required = true;
@@ -577,12 +599,12 @@ function checkMinors() {
     }
 }
 
+/* Detect input changes */
 document.addEventListener("input", function(e) {
-    if (e.target.name && e.target.name.includes("_age")) {
+    if (e.target.name && e.target.name.endsWith("_age")) {
         checkMinors();
     }
 });
-
 
 /* =============================
    ADD PARTICIPANT
