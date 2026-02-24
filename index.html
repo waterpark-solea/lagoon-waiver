@@ -473,7 +473,7 @@ I have carefully read, fully understood, and voluntarily agree to the terms and 
 document.addEventListener("DOMContentLoaded", function() {
 
 /* =============================
-   SIGNATURE PAD
+   SIGNATURE PAD FIX
 ============================= */
 
 const canvas = document.getElementById("signature-pad");
@@ -484,7 +484,9 @@ function resizeCanvas() {
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = 200 * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
+    signaturePad.clear();
 }
+
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
@@ -492,8 +494,9 @@ window.clearSignature = function() {
     signaturePad.clear();
 };
 
+
 /* =============================
-   ROOM TOGGLE
+   ROOM TOGGLE FIX
 ============================= */
 
 const guestType = document.getElementById("guest_type");
@@ -512,40 +515,42 @@ function toggleRoomField() {
 }
 
 guestType.addEventListener("change", toggleRoomField);
-toggleRoomField(); // run immediately
+toggleRoomField();
+
 
 /* =============================
-   MINOR DETECTION
+   MINOR DETECTION FIX
 ============================= */
 
+let participantCount = 1;
 const guardianSection = document.getElementById("guardian-section");
 const guardianInput = document.getElementById("guardian-input");
-
-let participantCount = 1;
 
 function checkMinors() {
 
     let hasMinor = false;
 
     for (let i = 1; i <= participantCount; i++) {
+
         const ageInput = document.querySelector(`[name="p${i}_age"]`);
         if (!ageInput) continue;
 
         const age = parseInt(ageInput.value);
-        const row = ageInput.closest(".participant-row");
         const label = document.getElementById(`p${i}_label`);
+        const row = ageInput.closest(".participant-row");
 
-        if (row) row.classList.remove("minor-highlight");
         if (label) label.innerHTML = "";
+        if (row) row.classList.remove("minor-highlight");
 
         if (!isNaN(age)) {
+
             if (age < 18) {
                 hasMinor = true;
-                if (row) row.classList.add("minor-highlight");
                 if (label) {
                     label.innerHTML = "Minor";
                     label.style.color = "red";
                 }
+                if (row) row.classList.add("minor-highlight");
             } else {
                 if (label) {
                     label.innerHTML = "Adult";
@@ -565,12 +570,12 @@ function checkMinors() {
     }
 }
 
-/* detect ALL age inputs */
 document.addEventListener("input", function(e) {
     if (e.target.name && e.target.name.includes("_age")) {
         checkMinors();
     }
 });
+
 
 /* =============================
    ADD PARTICIPANT
@@ -611,6 +616,7 @@ document.getElementById("addParticipantBtn")
     container.appendChild(div);
 });
 
+
 /* =============================
    FORM SUBMIT
 ============================= */
@@ -620,41 +626,19 @@ document.getElementById("waiverForm")
 
     e.preventDefault();
 
-    const submitBtn = this.querySelector('button[type="submit"]');
-
-    // 1️⃣ Check signature
     if (signaturePad.isEmpty()) {
         alert("Please provide your digital signature.");
         return;
     }
 
-    // 2️⃣ Smart validation for added participants
-    for (let i = 2; i <= participantCount; i++) {
-
-        const first = document.querySelector(`[name="p${i}_first"]`);
-        const last = document.querySelector(`[name="p${i}_last"]`);
-        const age = document.querySelector(`[name="p${i}_age"]`);
-
-        if (!first) continue;
-
-        if (first.value || last.value || age.value) {
-            if (!first.value || !last.value || !age.value) {
-                alert("Please complete all fields for Participant " + i);
-                return;
-            }
-        }
-    }
-
-    // 3️⃣ Disable button to prevent double click
+    const submitBtn = this.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     submitBtn.innerText = "Submitting...";
 
-    // 4️⃣ Save signature
     document.getElementById("signature-data").value = signaturePad.toDataURL();
-
     const formData = new FormData(this);
 
-    fetch("https://script.google.com/macros/s/AKfycbxZAYP4tl2QUD_Wt_jmou7Bs13wpwCLDY5STdZDxPKTMXNAux8rgZ7hZcEF7RlZHHc/exec", {
+    fetch("YOUR_WEB_APP_URL_HERE", {
         method: "POST",
         body: formData
     })
@@ -665,15 +649,12 @@ document.getElementById("waiverForm")
 
             alert("Waiver submitted successfully!");
 
-            // Reset form
-            document.getElementById("waiverForm").reset();
+            this.reset();
             signaturePad.clear();
             document.getElementById("additional-participants").innerHTML = "";
             participantCount = 1;
             guardianSection.style.display = "none";
             toggleRoomField();
-
-            // Optional: scroll to top for next guest
             window.scrollTo({ top: 0, behavior: "smooth" });
 
         } else {
@@ -682,13 +663,15 @@ document.getElementById("waiverForm")
 
     })
     .catch(error => {
-        console.error("Fetch error:", error);
-        alert("Submission failed. Please try again.");
+        console.error(error);
+        alert("Submission failed.");
     })
     .finally(() => {
         submitBtn.disabled = false;
         submitBtn.innerText = "Submit Waiver";
     });
+
+});
 
 });
 </script>
