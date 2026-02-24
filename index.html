@@ -496,7 +496,7 @@ window.clearSignature = function() {
 
 
 /* =============================
-   ROOM TOGGLE FIX
+   ROOM TOGGLE FIX (STABLE)
 ============================= */
 
 const guestType = document.getElementById("guest_type");
@@ -504,7 +504,10 @@ const roomContainer = document.getElementById("room-container");
 const roomInput = document.getElementById("room-input");
 
 function toggleRoomField() {
-    if (guestType.value === "In-House") {
+
+    const selectedValue = guestType.value.trim();
+
+    if (selectedValue === "In-House") {
         roomContainer.style.display = "block";
         roomInput.required = true;
     } else {
@@ -514,8 +517,12 @@ function toggleRoomField() {
     }
 }
 
-guestType.addEventListener("change", toggleRoomField);
-toggleRoomField();
+guestType.addEventListener("change", function() {
+    toggleRoomField();
+});
+
+// Run once after page loads
+setTimeout(toggleRoomField, 100);
 
 
 /* =============================
