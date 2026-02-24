@@ -667,32 +667,26 @@ document.getElementById("waiverForm")
     document.getElementById("signature-data").value = signaturePad.toDataURL();
     const formData = new FormData(this);
 
-    fetch("https://script.google.com/macros/s/AKfycbyf3X6A8DK1KCnML__E3XkN-R0sElqi91f30TYKGieTBSWiIVkxJjKuXWlGpieJ7b38/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbyOUwBI1S4IlbQGC-bPfn2tLp4zwMoCecvhaf58VQ-ZdLW_wGBlDwHcyVE5Oqpc3nDl/exec", {
     method: "POST",
-    body: formData
+    body: formData,
+    mode: "no-cors"
 })
-.then(response => response.json())
-.then(data => {
+.then(() => {
 
-    if (data.status === "success") {
+    alert("Waiver submitted successfully!");
 
-        alert("Waiver submitted successfully!");
-
-        document.getElementById("waiverForm").reset();
-        signaturePad.clear();
-        document.getElementById("additional-participants").innerHTML = "";
-        participantCount = 1;
-        guardianSection.style.display = "none";
-        toggleRoomField();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
-    } else {
-        alert("Error: " + data.message);
-    }
+    document.getElementById("waiverForm").reset();
+    signaturePad.clear();
+    document.getElementById("additional-participants").innerHTML = "";
+    participantCount = 1;
+    guardianSection.style.display = "none";
+    toggleRoomField();
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
 })
 .catch(error => {
-    console.error("Fetch error:", error);
+    console.error(error);
     alert("Submission failed.");
 })
 .finally(() => {
