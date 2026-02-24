@@ -110,11 +110,11 @@ select {
 
 .participant-row label {
     display: block;
-    margin-bottom: 8px; /* reduced from 12px */
+    margin-bottom: 8px;
 }
 
 .participant-row {
-    margin-bottom: 15px; /* reduced from 20px */
+    margin-bottom: 15px;
 }
 
 /* SIGNATURE */
@@ -175,10 +175,7 @@ button:hover {
     margin-top: 5px;
 }
 
-/* ===============================
-   GUARDIAN SECTION FIX
-=============================== */
-
+/* Guardian Section */
 #guardian-section {
     margin-top: 15px;
     margin-bottom: 15px;
@@ -194,12 +191,11 @@ button:hover {
 }
 
 #guardian-section .name-field {
-    max-width: 300px;  /* keeps guardian same width as one participant column */
+    max-width: 300px;
 }
 
 /* ---------- MOBILE & TABLET OPTIMIZATION ---------- */
 @media (max-width: 768px) {
-
     body {
         padding: 8px;
     }
@@ -336,24 +332,20 @@ I understand that this document is correct and that I thoroughly and fully under
        title="Room number must be exactly 3 digits (e.g., 101)">
 </div>
 
-
 <h3>Participants Name</h3>
 
 <!-- Participant 1 -->
 <div class="participant-row">
     <label>Participant 1 *</label>
     <div class="name-grid">
-
         <div class="name-field">
             <input type="text" name="p1_first" required>
             <small>First Name</small>
         </div>
-
         <div class="name-field">
             <input type="text" name="p1_last" required>
             <small>Last Name</small>
         </div>
-
         <div class="name-field">
             <input type="number"
                    name="p1_age"
@@ -364,8 +356,6 @@ I understand that this document is correct and that I thoroughly and fully under
             <small>Age</small>
             <div class="age-label" id="p1_label"></div>
         </div>
-		
-
     </div>
 </div>
 
@@ -375,29 +365,21 @@ I understand that this document is correct and that I thoroughly and fully under
 + Add Participant
 </button>
 
-
 <!-- Guardian Section -->
-
 <div id="guardian-section" style="display:none; margin-top:25px;">
-
     <h3>Parent/Guardian of Child (If Minor)</h3>
     <p style="font-size:13px; margin-top:-10px;">
         (Required only if any participant is under 18 years old)
     </p>
-
     <div class="participant-row">
         <div class="name-grid">
-
             <div class="name-field" style="max-width: 300px;">
                 <input type="text" name="guardian" id="guardian-input">
                 <small>Full Name</small>
             </div>
-
         </div>
     </div>
-
 </div>
-
 
 <p><strong>DATA PRIVACY CONSENT</strong></p>
 
@@ -431,7 +413,6 @@ I have read, understood, and voluntarily agree to the collection and processing 
 I have carefully read, fully understood, and voluntarily agree to the terms and conditions stated in this Lagoon Waterparks Waiver and Assumption of Risk. I acknowledge that by checking this box and signing below, I am waiving certain legal rights.
 </label>
 
-
 <br><br>
 
 <h3>Digital Signature</h3>
@@ -453,20 +434,16 @@ I have carefully read, fully understood, and voluntarily agree to the terms and 
 
 <!-- THANK YOU MESSAGE -->
 <div id="thankYouMessage" style="display:none; text-align:center; padding:60px;">
-
     <h1 style="color:#2e7d32; font-size:28px; margin-bottom:20px;">
         Registration Successful! 🌊
     </h1>
-
     <p style="font-size:18px; max-width:600px; margin:0 auto 30px auto; line-height:1.6;">
         Thank you for completing your waiver. We look forward to providing you 
         with a safe and enjoyable experience at Lagoon Waterpark.
     </p>
-
     <button id="newRegistrationBtn" style="max-width:300px;">
         Register Another Guest
     </button>
-
 </div>
 
 <script>
@@ -484,6 +461,7 @@ function resizeCanvas() {
     canvas.width = canvas.offsetWidth * ratio;
     canvas.height = 200 * ratio;
     canvas.getContext("2d").scale(ratio, ratio);
+    signaturePad.clear(); // Clear after resize to avoid scaling issues
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
@@ -512,7 +490,7 @@ function toggleRoomField() {
 }
 
 guestType.addEventListener("change", toggleRoomField);
-toggleRoomField(); // run immediately
+toggleRoomField();
 
 /* =============================
    MINOR DETECTION
@@ -524,7 +502,6 @@ const guardianInput = document.getElementById("guardian-input");
 let participantCount = 1;
 
 function checkMinors() {
-
     let hasMinor = false;
 
     for (let i = 1; i <= participantCount; i++) {
@@ -565,7 +542,7 @@ function checkMinors() {
     }
 }
 
-/* detect ALL age inputs */
+/* Detect ALL age inputs */
 document.addEventListener("input", function(e) {
     if (e.target.name && e.target.name.includes("_age")) {
         checkMinors();
@@ -578,11 +555,8 @@ document.addEventListener("input", function(e) {
 
 document.getElementById("addParticipantBtn")
 .addEventListener("click", function() {
-
     participantCount++;
-
     const container = document.getElementById("additional-participants");
-
     const div = document.createElement("div");
     div.className = "participant-row";
 
@@ -601,7 +575,8 @@ document.getElementById("addParticipantBtn")
                 <input type="number"
                        name="p${participantCount}_age"
                        min="0"
-                       max="80">
+                       max="80"
+                       oninput="if (this.value.length > 2) this.value = this.value.slice(0,2)">
                 <small>Age</small>
                 <div class="age-label" id="p${participantCount}_label"></div>
             </div>
@@ -617,20 +592,18 @@ document.getElementById("addParticipantBtn")
 
 document.getElementById("waiverForm")
 .addEventListener("submit", function(e) {
-
     e.preventDefault();
 
     const submitBtn = this.querySelector('button[type="submit"]');
 
-    // 1️⃣ Check signature
+    // Check signature
     if (signaturePad.isEmpty()) {
         alert("Please provide your digital signature.");
         return;
     }
 
-    // 2️⃣ Smart validation for added participants
+    // Smart validation for added participants
     for (let i = 2; i <= participantCount; i++) {
-
         const first = document.querySelector(`[name="p${i}_first"]`);
         const last = document.querySelector(`[name="p${i}_last"]`);
         const age = document.querySelector(`[name="p${i}_age"]`);
@@ -639,7 +612,6 @@ document.getElementById("waiverForm")
 
         // If user typed anything in this row
         if (first.value || last.value || age.value) {
-
             // But not all fields completed
             if (!first.value || !last.value || !age.value) {
                 alert("Please complete all fields for Participant " + i);
@@ -648,11 +620,11 @@ document.getElementById("waiverForm")
         }
     }
 
-    // 3️⃣ Disable button to prevent double click
+    // Disable button to prevent double submission
     submitBtn.disabled = true;
     submitBtn.innerText = "Submitting...";
 
-    // 4️⃣ Save signature
+    // Save signature
     document.getElementById("signature-data").value = signaturePad.toDataURL();
 
     const formData = new FormData(this);
@@ -662,38 +634,42 @@ document.getElementById("waiverForm")
         body: formData
     })
     .then(response => response.text())
-.then(text => {
-    try {
-        const data = JSON.parse(text);
+    .then(text => {
+        try {
+            const data = JSON.parse(text);
 
-        if (data.status === "success") {
+            if (data.status === "success") {
+                // Show success message
+                document.getElementById("mainContent").style.display = "none";
+                document.getElementById("thankYouMessage").style.display = "block";
 
-            // Reset form silently
-            document.getElementById("waiverForm").reset();
-            signaturePad.clear();
-            document.getElementById("additional-participants").innerHTML = "";
-            participantCount = 1;
-            guardianSection.style.display = "none";
-            toggleRoomField();
+                // Reset form silently
+                document.getElementById("waiverForm").reset();
+                signaturePad.clear();
+                document.getElementById("additional-participants").innerHTML = "";
+                participantCount = 1;
+                guardianSection.style.display = "none";
+                toggleRoomField();
+            } else {
+                alert("Error: " + (data.message || "Unknown error occurred"));
+            }
 
+        } catch (err) {
+            console.error("JSON Parse error:", err);
+            console.error("Raw response:", text);
+            alert("There was an issue processing your submission. Please try again.");
         }
 
         // Re-enable button
         submitBtn.disabled = false;
         submitBtn.innerText = "Submit Waiver";
-
-    } catch (err) {
-        console.error("Raw response:", text);
+    })
+    .catch(error => {
+        console.error("Network error:", error);
+        alert("Network error. Please check your connection and try again.");
         submitBtn.disabled = false;
         submitBtn.innerText = "Submit Waiver";
-    }
-})
-.catch(error => {
-    console.error("Fetch error:", error);
-    submitBtn.disabled = false;
-    submitBtn.innerText = "Submit Waiver";
-});
-
+    });
 });
 
 /* =============================
@@ -702,31 +678,30 @@ document.getElementById("waiverForm")
 
 document.getElementById("newRegistrationBtn")
 .addEventListener("click", function() {
-
     // Hide thank you screen
     document.getElementById("thankYouMessage").style.display = "none";
-
+    
     // Show main form again
     document.getElementById("mainContent").style.display = "block";
-
+    
     // Reset form
     document.getElementById("waiverForm").reset();
-
+    
     // Clear signature
     signaturePad.clear();
-
+    
     // Reset dynamic participants
     document.getElementById("additional-participants").innerHTML = "";
     participantCount = 1;
-
+    
     // Hide guardian
     guardianSection.style.display = "none";
-
+    
     // Reset room field
     toggleRoomField();
 });
 
-}); // ← THIS is the end of DOMContentLoaded
+});
 </script>
 
 </body>
